@@ -233,7 +233,7 @@ class FanEntity(ToggleEntity):
             index = self.speed_list.index(self.speed)
 
             index = index + 1 if up else index - 1
-            index = self.clamp(index, 0, len(self.speed_list))
+            index = self.clamp(index, 0, len(self.speed_list) - 1)
             self.set_speed(self.speed_list[index])
         else:
             _LOGGER.warning("Fan speed %s not in speed list" % str(self.speed))
