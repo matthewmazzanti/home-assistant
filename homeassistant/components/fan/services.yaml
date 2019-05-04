@@ -54,6 +54,20 @@ set_direction:
       description: The direction to rotate. Either 'forward' or 'reverse'
       example: 'forward'
 
+speed_up:
+  description: Increase fan speed by one level
+  fields:
+    entity_id:
+      description: Name(s) of the entities to set
+      example: 'fan.living_room'
+
+speed_down:
+  description: Decrease fan speed by one level
+  fields:
+    entity_id:
+      description: Name(s) of the entities to set
+      example: 'fan.living_room'
+
 xiaomi_miio_set_buzzer_on:
   description: Turn the buzzer on.
   fields:

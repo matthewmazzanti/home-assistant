@@ -33,6 +33,8 @@ SUPPORT_DIRECTION = 4
 SERVICE_SET_SPEED = 'set_speed'
 SERVICE_OSCILLATE = 'oscillate'
 SERVICE_SET_DIRECTION = 'set_direction'
+SERVICE_SPEED_UP = 'speed_up'
+SERVICE_SPEED_DOWN = 'speed_down'
 
 SPEED_OFF = 'off'
 SPEED_LOW = 'low'
@@ -82,6 +84,14 @@ FAN_SET_DIRECTION_SCHEMA = vol.Schema({
     vol.Optional(ATTR_DIRECTION): cv.string
 })  # type: dict
 
+FAN_SPEED_UP = vol.Schema({
+    vol.Required(ATTR_ENTITY_ID): cv.comp_entity_ids
+})  # type: dict
+
+FAN_SPEED_DOWN = vol.Schema({
+    vol.Required(ATTR_ENTITY_ID): cv.comp_entity_ids
+})  # type: dict
+
 
 @bind_hass
 def is_on(hass, entity_id: str = None) -> bool:
@@ -121,6 +131,14 @@ async def async_setup(hass, config: dict):
     component.async_register_entity_service(
         SERVICE_SET_DIRECTION, FAN_SET_DIRECTION_SCHEMA,
         'async_set_direction'
+    )
+    component.async_register_entity_service(
+        SERVICE_SPEED_UP, FAN_SPEED_UP,
+        'async_speed_up'
+    )
+    component.async_register_entity_service(
+        SERVICE_SPEED_DOWN, FAN_SPEED_DOWN,
+        'async_speed_down'
     )
 
     return True
@@ -189,6 +207,45 @@ class FanEntity(ToggleEntity):
         This method must be run in the event loop and returns a coroutine.
         """
         return self.hass.async_add_job(self.oscillate, oscillating)
+
+    def speed_up(self) -> None:
+        self.step_speed(True)
+
+    def async_speed_up(self):
+        """Turn the speed up 1.
+
+        This method must be run in the event loop and returns a coroutine.
+        """
+        return self.hass.async_add_job(self.speed_up)
+
+    def speed_down(self) -> None:
+        self.step_speed(False)
+
+    def async_speed_down(self):
+        """Turn the speed down 1.
+
+        This method must be run in the event loop and returns a coroutine.
+        """
+        return self.hass.async_add_job(self.speed_down)
+
+    def step_speed(self, up):
+        if self.speed in self.speed_list:
+            index = self.speed_list.index(self.speed)
+
+            index = index + 1 if up else index - 1
+            index = self.clamp(index, 0, len(self.speed_list))
+            self.set_speed(self.speed_list[index])
+        else:
+            _LOGGER.warning("Fan speed %s not in speed list" % str(self.speed))
+
+    @staticmethod
+    def clamp(num, minumum, maximum):
+        if num < minimum:
+            return minimum
+        elif num > maximum:
+            return maximum
+        else:
+            return num
 
     @property
     def is_on(self):
