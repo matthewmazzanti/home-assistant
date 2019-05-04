@@ -239,7 +239,7 @@ class FanEntity(ToggleEntity):
             _LOGGER.warning("Fan speed %s not in speed list" % str(self.speed))
 
     @staticmethod
-    def clamp(num, minumum, maximum):
+    def clamp(num, minimum, maximum):
         if num < minimum:
             return minimum
         elif num > maximum:
